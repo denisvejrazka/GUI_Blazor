@@ -25,6 +25,11 @@ Více o modelech hostování zde: https://learn.microsoft.com/cs-cz/aspnet/core/
 
 ## Jak začít s Blazorem?
 - Doporučujeme mít nainstalované Visual Studio, ale lze vyvíjet například i ve Visual Studio Code, pokud máte třeba C# Dev Kit. Nicméně tento tutoriál bude zaměřen primárně na Visual Studio.
+- Pokud nemáte nainstalovaný Blazor, otevřete Visual Studio Installer a v něm vyberte následující položku:
+
+
+![asp net a web](https://github.com/denisvejrazka/GUI_Blazor/assets/112482063/2bb0b434-9f1e-4e54-9af4-2e25f81ba405)
+
 
 
 
