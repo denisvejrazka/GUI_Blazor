@@ -83,8 +83,13 @@ else
 	<p style="color: green;" >Číslo @i</p>
 }
 ```
+
 ## Counter
 Do složky Components si vytvoříme *Counter.razor*
+
+<details>
+<summary>Counter</summary>
+
 ```
 @page "/counter"
 @rendermode InteractiveServer
@@ -106,12 +111,17 @@ Do složky Components si vytvoříme *Counter.razor*
     }
 }
 ```
+
+</details>
+
 Důležitý zde je **@onclick** event handler, který nám umožňuje spustit funkci IncrementCount() na kliknutí tlačítka.
 
 ## Úkol 1
 Předělejte kód komponenty *Counter.razor*, aby číslo zezelenalo pokud je dělitelné 2 (bez zbytku).
 
-## Řešení úkolu 1
+<details>
+<summary>Řešení úkolu 1</summary>
+
 ```
 @page "/counter"
 @rendermode InteractiveServer
@@ -141,6 +151,8 @@ else
     }
 }
 ```
+ 
+</details>
 
 #### Stylování pomocí HTML atributu style, není optimální, tudíž jedna z dalších možností je, pravým tlačítkem klepnout na komponentu, přidat položku *"jméno komponenty.razor"* a přidat příponu souboru *.css*, nyní máte k této komponentě zvláště *.css* soubor.
 
@@ -166,7 +178,9 @@ else
 ```
 Dvousměrný binding se používá pro interaktivní prvky, jako jsou formuláře.
 
-### Praktický příklad
+<details>
+<summary>Praktický příklad</summary>
+	
 ```
 <input type="text" @bind="NewNote"/>
 <button @onclick="AddNote">Přidat poznámku</button>
@@ -188,7 +202,9 @@ Dvousměrný binding se používá pro interaktivní prvky, jako jsou formulář
 }
 ```
 
-### Layout (Český překlad: rozložení)
+</details>
+
+### Layout
 Layout je komponenta Razor , která sdílí značky s komponentami, které na ni odkazují. Může to být například navbar a nebo footer. Zkrátka část webové stránky, která bude sdílena na mnoha odkazech webové stránky.
 
 V ukázce kódu můžete vidět jednoduchý Navbar, který nás nikam nebude odkazovat, ale slouží pouze pro demonstraci Layoutu.
@@ -322,7 +338,9 @@ li{
 
 ## Použití parametru v @page
 Parametr můžeme použít i s direktivou @page.
-#### Praktický příklad
+<details>
+<summary>Praktický příklad</summary>
+
 ```
 @page "/user/{Id:int}"
 
@@ -337,36 +355,53 @@ Parametr můžeme použít i s direktivou @page.
     public int Id { get; set; }
 }
 ```
+
+</details>
+
 ## Úkol 2
 Na stránce Index.razor vytvořte komponentu *<Rectangle />* a její vlastnost *Color* vyberte z inputu na stejné stránce.
 ##
 
-Řešení:
+<details>
+<summary>Řešení:</summary>
 Deklarace proměnné:
+	
 ```
 string? c;
 ```
+
 Přidáme do inputu @bind s naší proměnnou
+
 ```
 <input @bind="c">
+
 ```
 Přidáme proměnnou do vlastnosti Color
+
 ```
 <Rectangle Color="@c" />
-```
 
+```
+</details>
+	
 ## Dependency injection v Blazoru
 Zjednodušeně řečeno, dependency injection je technika, která umožňuje komponentám získávat své závislosti zvenčí, místo toho aby si je vytvářely samy.
 
 Pro lepší pochopení si DI ukážeme v praxi.
-Jako první si nadefinujeme rozhraní IMyservice, které bude implementovat metodu, která vrací string.
+<details>
+<summary>Jako první si nadefinujeme rozhraní *IMyService*, které bude implementovat metodu, která vrací string.</summary>
+	
 ```
 interface IMyService {
     string WhatIsUjepReallyLike();
 }
 ```
 
-Dále si nadefinujeme třídu MyService, která bude implementovat rozhraní
+</details>
+
+<details>
+<summary>Dále si nadefinujeme třídu *MyService*, která bude implementovat rozhraní</summary>
+
 ```
 public class MyService: IMyService
 {
@@ -381,6 +416,9 @@ public class MyService: IMyService
     }
 }
 ```
+ 
+</details>
+
 
 Nyní je čas si vytvořit naší službu v souboru *Program.cs*.
 
@@ -394,8 +432,9 @@ Ke kódu, kde vidíme builder services si přidáme naší službu:
 ```
 builder.Services.AddSingleton<MyService>();
 ```
+<details>
+<summary>Zde je naše komponenta, která bude využivat službu</summary>	
 
-Zde je naše komponenta, která bude využivat službu
 ```
 @page "/ujep"
 @inject MyService service
@@ -415,6 +454,9 @@ Zde je naše komponenta, která bude využivat službu
     }
 }
 ```
+
+</details>
+
 
 Nyní si odkaz na naší komponentu můžeme vložit také do navbaru.
 ```
