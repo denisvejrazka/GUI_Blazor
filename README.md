@@ -91,16 +91,13 @@ Do složky Components si vytvoříme *Counter.razor*
 <summary>Counter</summary>
 
 ```
-@page "/counter"
 @rendermode InteractiveServer
-
-<PageTitle>Counter</PageTitle>
 
 <h1>Counter</h1>
 
 <p>Current count: @currentCount</p>
 
-<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+<button @onclick="IncrementCount">Click me</button>
 
 @code {
     private int currentCount = 0;
@@ -123,13 +120,9 @@ Předělejte kód komponenty *Counter.razor*, aby číslo zezelenalo pokud je d�
 <summary>Řešení úkolu 1</summary>
 
 ```
-@page "/counter"
 @rendermode InteractiveServer
 
-<PageTitle>Counter</PageTitle>
-
 <h1>Counter</h1>
-
 
 @if (currentCount % 2 == 0)
 {
@@ -140,7 +133,7 @@ else
     <p>Current count: @currentCount</p>
 }
 
-<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+<button @onclick="IncrementCount">Click me</button>
 
 @code {
     private int currentCount = 0;
@@ -240,7 +233,7 @@ li{
 }
 ```
 
-Pokud teď půjdete na *Index.razor* bude tam Navbar.
+Pokud teď půjdete na *Home.razor* bude tam Navbar.
 Tímto ovšem ale neověříme, zda tam Navbar zůstane i na jiném odkazu webové stránky. Proto si vytvoříme libovolnou stránku ve složce Pages. Stránku pojmenujte jak chcete, v mém případe *Stranka2.razor*.
 
 ### @Page
@@ -249,7 +242,7 @@ Stranka2.razor
 @page "/2"
 <h1>Vítejte na naší druhé stránce!</h1>
 ```
-V našem *MainLayout.razor* nastavíme odkaz hlavní stránky na / a nyní se můžeme prokliknout na *Index.razor* pomocí našeho navbaru.
+V našem *MainLayout.razor* nastavíme odkaz hlavní stránky na / a nyní se můžeme prokliknout na *Home.razor* pomocí našeho navbaru.
 ```
 <a href="/">Hlavní stránka</a>
 ```
@@ -295,7 +288,7 @@ Vytvoříme si složku /Pages/Components a v ní komponentu Rectangle.razor.
 ```
 Komponentě vytvoříme proměnnou *Color* a přidáme ji jako barvu pozadí do HTML elementu div ```style="background-color: @Color;"```.
 
-Nyní v naší hlavní komponentě *Index.razor* si můžeme vytvářet obdélníky a měnit jim barvy následujícím způsobem:
+Nyní v naší hlavní komponentě *Home.razor* si můžeme vytvářet obdélníky a měnit jim barvy následujícím způsobem:
 
 *Index.razor*:
 ```
@@ -311,7 +304,7 @@ Nyní v naší hlavní komponentě *Index.razor* si můžeme vytvářet obdéln�
     <Rectangle Color="#FE8760"/>
 </div>
 ```
-*css*:
+Navbar.razor.css
 ```
 ul{
     list-style-type: none;
@@ -323,13 +316,17 @@ li{
     font-weight: 600;
     color: blue;
 }
-
+```
+Rectangle.razor.css
+```
 .rectangle {
     margin: 10px;
     width: 200px;
     height: 100px;
 }
-
+```
+Home.razor.css
+```
 .rectangles{
     margin: 20px;
     display: flex;
@@ -359,7 +356,7 @@ Parametr můžeme použít i s direktivou @page.
 </details>
 
 ## Úkol 2
-Na stránce Index.razor vytvořte komponentu *<Rectangle />* a její vlastnost *Color* vyberte z inputu na stejné stránce.
+Na stránce Home.razor vytvořte komponentu *<Rectangle />* a její vlastnost *Color* vyberte z inputu na stejné stránce.
 ##
 
 <details>
