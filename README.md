@@ -461,3 +461,542 @@ Nyní si odkaz na naší komponentu můžeme vložit také do navbaru.
 ```
 
 ## Druhá část
+# Praktická část - vytvoření Kanban tabule
+Kanban tabule je vizuální nástroj používaný k řízení pracovních úkolů a jejich postupu. Typicky se skládá ze sloupců, které reprezentují různé fáze procesu (např. "To Do", "In Progress", "Done"). Úkoly jsou reprezentovány kartami, které se přesouvají mezi sloupci podle jejich stavu. Kanban tabule pomáhá týmu vidět pracovní tok, identifikovat překážky a zlepšovat efektivitu.
+
+[Příklady kanban tabulí](https://www.google.com/search?sca_esv=697ef796fdf142b1&sca_upv=1&q=kanban+board&uds=ADvngMgqPfd500FffDLSjDoas1rZnlaZW-_XjFgB4fsGr6q-PMItPsU3TiACTUnY5dWkMFGt1WbAuBxpdYekSjAKCgDyGhv2zwcJKb9rvKSZnm5e_xJd7dWTaSxaDCOWJ8OZ_1NHOS1J62qJ8Oyt9osJh0TzHzLKeomT1KG3Z7qyE6BQGsRQbht5yibfcMe9JAdDicMf6noNtbpFCsBOCYCxx9TPqSvzm340OmLh5HFKUWHL9wzTBW7tJpPcOKuKcHALGPnbx-ItEyUJUbnIE5ERQSpikf3lOQ&udm=2&prmd=ivnbz&sa=X&ved=2ahUKEwjD75yJ4pCGAxXjUEEAHe22DnYQtKgLegQIChAB&biw=1920&bih=1067&dpr=1.5)
+
+## 1. Část - Modely a fake databáze
+1.  Vytvoříme složku Data v kořenu projektu
+2.  Vytvoříme třídu KanbanCardModel
+    1. string Title
+    2. string Description
+    3. DateOnly Deadline
+3.  Vytvoříme třídu KanbanColumnModel
+    1. int Id
+    2. string Title
+    3. string BoxColor
+    4. List\<KanbanCardModel> Cards
+    5. Konstruktor který bude auto inkrementovat Id
+4.  Vytvoříme třídu KanbanService
+    1. Obsahuje List\<KanbanColumnModel>
+5. Přídáme náš servis v Program.cs
+
+<details>
+
+<summary> Checkpoint 1</summary>
+KanbanCardModel.cs
+
+```
+public class KanbanCardModel
+{
+	public string? Title { get; set; }
+	public string? Description { get; set; }
+	public DateOnly? Deadline { get; set; }
+}
+```
+KanbanColumnModel.cs
+```
+public class KanbanColumnModel
+{
+	private static int IdCount = 1;
+	public int Id { get; set; }
+	public string? Title { get; set; }
+	public string? BoxColor { get; set; }
+	public List<KanbanCardModel> Cards { get; set; } = new List<KanbanCardModel>();
+
+	public KanbanColumnModel(string title, string color) 
+	{
+		this.Id = IdCount++;
+		Title = title;
+		BoxColor = color;
+	}
+}
+```
+KanbanService.cs
+```
+public class KanbanService
+{
+    public List<KanbanColumnModel> kanbanColumns = new List<KanbanColumnModel>();
+}
+```
+Program.cs
+```
+// Add services to the container.
+builder.Services.AddRazorComponents()
+    .AddInteractiveServerComponents();
+builder.Services.AddSingleton<KanbanService>();
+```
+
+</details>
+
+## 2. Část - Stylový začátky
+
+Připravil jsem css stylesheet aby naše aplikace nevypadala jak z devadesátých let.
+
+<details>
+
+<summary> CSS Stylesheet</summary>
+
+```
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* NAVBAR */
+nav.navbar {
+    background-color: #333;
+    padding: 10px 40px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+nav.navbar a {
+    padding: 12px 20px;
+    border-radius: 5px;
+    background-color: #007bff;
+    transition: background-color 0.3s;
+    color: white;
+    text-decoration: none;
+    margin-right: 20px;
+    font-size: 20px;
+}
+
+nav.navbar a:hover {
+    background-color: #0056b3;
+    text-decoration: underline;
+}
+
+nav.navbar a:active {
+    transform: translateY(1px);
+}
+
+/* KANBAN */
+.kanban-board {
+    display: flex;
+}
+
+.kanban-column {
+    flex-shrink: 0;
+    width: 300px;
+    min-width: 200px;
+    padding: 10px;
+    background-color: #f4f4f4;
+    border-radius: 5px;
+    margin: 0 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s, box-shadow 0.3s;
+    text-align: center;
+}
+
+.kanban-card {
+    background-color: #fff;
+    padding: 10px;
+    margin: 10px 10px 10px 10px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s;
+}
+
+.kanban-column:hover {
+    background-color: #f0f0f0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.kanban-card:hover {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* FORM */
+.form-container {
+    width: 400px;
+    margin-left: 40px;
+    margin-bottom: 15px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.form-container h1{
+    margin-bottom: 15px;
+}
+
+.form-container label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 20px;
+}
+
+.form-container input[type="text"],
+.form-container input[type="date"],
+.form-container input[type="color"] {
+    width: 100%;
+    margin-bottom: 15px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.form-container input[type="color"] {
+    padding: 3px;
+    border-radius: 5px;
+    height: 40px;
+    appearance: none;
+}
+
+.form-container button,
+.form-container button[type="submit"] {
+    width: 100%;
+    padding: 10px;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.form-container button:hover,
+.form-container button[type="submit"]:hover {
+    background-color: #45a049;
+}
+
+/* BUTTON */
+.circular-button {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: white;
+    color: black;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+.circular-button:hover {
+    background-color: #c2c2c2;
+}
+
+.circular-button:active {
+    transform: scale(0.95);
+}
+
+.form-container button.button-red {
+    width: 100%;
+    padding: 10px;
+    background-color: #e50000;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.form-container button.button-red:hover {
+    background-color: #b32121;
+}
+
+```
+
+</details>
+
+
+Celý to přidáme do app.css v wwwroot složce
+
+v App.razor máme hlavičku našich html stránek, tady si mužete třeba naimportovat Bootstrap pokud chcete
+
+### ÚKOL - Vytvořte Blazor komponentu, která bude sloužit jako formulář na vytváření KanbanColumnModelů
+
+1. použijte using directive abychom mohli použít třídy z namespace (AppName).Data
+1. injekujte servis
+2. dejte mu route pomocí page directive
+3. udělejte aby byl interaktivní
+4. udělejte formulář, která nabinduje input data do promněných
+5. typo promněnné použijeme v konstruktoru KanbanColumnModel
+6. udělejte metodu, která přídá nový KanbanColumnModel do databáze pomoci našeho servisu
+6. metodu zavoláme na stisknutí tlačítka
+
+když ten formulář bude v \<div> s třídou kanban-column tak bude relativně hezkej 
+
+### Navbar
+
+v MainLayout.razor uděláme navbar, který bude routovat do Home a do toho formuláře
+
+```
+@inherits LayoutComponentBase
+
+<nav class="navbar">
+    <a href="/">Home</a>
+    <a href="createform">Form</a>
+</nav>
+
+<main>
+    @Body
+</main>
+
+<div id="blazor-error-ui">
+    An unhandled error has occurred.
+    <a href="" class="reload">Reload</a>
+    <a class="dismiss">🗙</a>
+</div>
+```
+
+v Home.razor vytvořte list KanbanColumnModelů a přiřadte mu list z KanbanServisu uvnitr teto metody
+```
+protected override void OnInitialized()
+{
+	yourList = kanbanSvc.kanbanColumns;
+}
+```
+
+udělejte foreach cyklus, který vyrenderuje data z KanbanColumn
+ten cyklus je obalen v \<div> s třídou kanban-board
+
+<details>
+<summary>2. checkpoint</summary>
+
+CreateForm.razor
+```
+@page "/createform"
+@rendermode InteractiveServer
+@using Data
+@inject KanbanService KanbanSvc
+
+<div class="form-container">
+	<form>
+		<h1>Create Column</h1>
+		<label for="Title">Title</label>
+		<input id="Title" type="text" @bind="newTitle" />
+		<label for="Colour">Colour</label>
+		<input id="Colour"type="color" @bind="color" />
+		<button @onclick="AddColumn">Add todo</button>
+	</form>
+</div>
+
+
+@code {
+	public string newTitle;
+	public string color = "#f4f4f4";
+
+	public void AddColumn()
+	{
+		KanbanSvc.kanbanColumns.Add(new KanbanColumnModel(newTitle, color));
+		newTitle = "";
+		color = "#f4f4f4";
+	}
+}
+```
+Home.razor
+```
+@page "/"
+@using Data
+@inject KanbanService KanbanSvc
+@rendermode InteractiveServer
+
+<div class="kanban-board">
+	@foreach (KanbanColumnModel column in Columns)
+	{
+		column.Title
+		column.BoxColor
+	}
+</div>
+
+@code {
+
+	public List<KanbanColumnModel>? Columns { get; set; }
+    protected override void OnInitialized()
+    {
+    	Columns = kanbanSvc.kanbanColumns;
+    }
+}
+```
+
+</details>
+
+## 3. Část - Komponenty a Komponenty
+
+zatím nám to vykresluje jen text, uděláme komponentu na vykreslení barevného kvádru s názvem
+
+1. Vytvoř blazor komponentu KanbanColumn.razor
+2. pomocí atributu Parameter získá objekt KanbanColumnModel
+3. napište \<div> s třídou kanban-column
+4. do toho vložte název a obarvěte div pomocí objektu z parametru
+
+Upravte Home.razor aby v foreach cyklu vytvářel naši novou komponentu a do parametru vložil KanbanColumnModel objekty
+
+
+### Udělat to samé ale pro Card
+
+
+1. Vytvoř blazor komponentu KanbanCard.razor
+2. pomocí atributu Parameter získá objekt KanbanCardModel
+3. napište \<div> s třídou kanban-card
+4. do toho vložte vlastnosti objektu
+
+Upravte KanbanColumn.razor aby v foreach cyklu vytvářel naši novou komponentu a do parametru vložil KanbanCardModel objekty
+
+
+<details>
+<summary>3. Checkpoint</summary>
+
+Home.razor
+```
+@page "/"
+@using Data
+@inject KanbanService KanbanSvc
+@rendermode InteractiveServer
+
+<div class="kanban-board">
+	@foreach (KanbanColumnModel column in Columns)
+	{
+        <KanbanColumn Column="column"></KanbanColumn>
+	}
+</div>
+
+@code {
+
+	public List<KanbanColumnModel>? Columns { get; set; }
+    protected override void OnInitialized()
+    {
+    	Columns = kanbanSvc.kanbanColumns;
+    }
+}
+```
+KanbanColumn.razor
+```
+@using Data
+@rendermode InteractiveServer
+
+<div class="kanban-column" style="background-color: @Column.BoxColor">
+	<h2>@Column.Title</h2>
+		@foreach (var card in Column.Cards)
+		{
+			<KanbanCard Card="card/>
+		}
+</div>
+
+@code {
+	[Parameter]
+	public KanbanColumnModel? Column { get; set; }
+}
+```
+KanbanCard.razor
+```
+@using Data
+@rendermode InteractiveServer
+
+<div class="kanban-card">
+	<b>
+		@Card.Title
+	</b>
+	<p>
+		@Card.Description
+	</p>
+	<i>
+		@Card.Deadline
+	</i>
+</div>
+
+@code {
+	[Parameter]
+	public KanbanCardModel? Card { get; set; }
+}
+```
+
+</details>
+
+## 4. Část - Final Boss (phase 1/30)
+
+- Vytvořte tlačítko v KanbanColumn.razor, který vás přesměruje do nové stránky EditForm.razor
+- zde vytvořte formuláře na vytváření KanbanCardModelů, editování KanbanColumnModelu a jeho smazání
+- aby stránka věděla do jakého KanbanColumnModelu to dát, využijeme route parametr, který vezme Id
+
+Abychom tlačítkem mohli přesměrovat použijeme servis NavigationManager a jeho funkci NavigateTo($"/editform/{Column.Id}") - tohle nás pošle do /editform a jako parametr tam dal Column.Id
+
+<details>
+<summary>4. Checkpoint</summary>
+
+EditForm.razor
+```
+@page "/editform/{id:int}"
+@using Data
+@inject KanbanService KanbanSvc
+@inject NavigationManager NavMan
+@rendermode InteractiveServer
+
+@if (Column != null)
+{
+<div class="form-container">
+	<h1>Add Card</h1>
+	<form>
+		<label for="Title">Title</label>
+		<input id="Title" type="text" @bind="newTitle"/>
+		<label for="Description">Description</label>
+		<input id="Description" type="text" @bind="newDescription"/>
+		<input type="date" @bind="newDeadline"/>
+		<button @onclick="AddItem">Add Item</button>
+	</form>
+</div>
+
+<div class="form-container">
+	<h1>Edit Column</h1>
+	<form>
+		<label for"Title">Title</label>
+		<input id="Title" type="text" @bind="Column.Title" />
+		<label for"Color">Colour</label>
+		<input id="Color" type="color" @bind="Column.BoxColor"/>
+	</form>
+</div>
+<div class="form-container">
+	<h1>Delete Column</h1>
+	<button class="button-red" @onclick="DeleteColumn">DELETE</button>
+</div>
+}
+else{
+	<p>nothing here</p>
+}
+
+
+@code {
+	[Parameter]
+	public int Id { get; set; }
+	public KanbanColumnModel? Column { get; set; }
+
+	private string? newTitle;
+	private string? newDescription;
+	private DateOnly? newDeadline;
+
+	protected override void OnInitialized()
+	{
+		Column = KanbanSvc.kanbanColumns.Find(x => x.Id == Id);
+	}
+	private void AddItem()
+	{
+		Column.Cards.Add(new KanbanCardModel() {Title = newTitle, Description = newDescription, Deadline = newDeadline });
+		newTitle = "";
+		newDescription = "";
+	}
+	private void DeleteColumn()
+	{
+		KanbanSvc.kanbanColumns.Remove(Column);
+		NavMan.NavigateTo($"/");
+	}
+}
+
+```
+
+</details>
+
+## 5. Část - Sidequests
+
+Streamrendering - vyrenderuje html stránku dřív než získal všechny potřebná data (z databáze, API), po získání se rerenderuje
+EditForm - vestavěná komponenta na vytváření formulářu s validací
