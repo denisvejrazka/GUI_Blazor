@@ -459,3 +459,538 @@ Now we can put the link to our component in navbar as well.
 ```
 
 ## Part two
+A Kanban board is a visual tool used to manage work tasks and their progress. It typically consists of columns that represent different stages of a process (e.g. "To Do", "In Progress", "Done"). Tasks are represented by tabs that move between columns according to their status. Kanban boards help the team see workflow, identify bottlenecks, and improve efficiency.
+
+[Examples of a Kanban Board](https://www.google.com/search?sca_esv=697ef796fdf142b1&sca_upv=1&q=kanban+board&uds=ADvngMgqPfd500FffDLSjDoas1rZnlaZW-_XjFgB4fsGr6q-PMItPsU3TiACTUnY5dWkMFGt1WbAuBxpdYekSjAKCgDyGhv2zwcJKb9rvKSZnm5e_xJd7dWTaSxaDCOWJ8OZ_1NHOS1J62qJ8Oyt9osJh0TzHzLKeomT1KG3Z7qyE6BQGsRQbht5yibfcMe9JAdDicMf6noNtbpFCsBOCYCxx9TPqSvzm340OmLh5HFKUWHL9wzTBW7tJpPcOKuKcHALGPnbx-ItEyUJUbnIE5ERQSpikf3lOQ
+
+## Part 1 - Models and fake databases
+1. Create a Data folder in the root of the project
+2.  Create the KanbanCardModel class
+    1. string Title
+    2. string Description
+    3. DateOnly Deadline
+3.  Create KanbanColumnModel class
+    1. int Id
+    2. string Title
+    3. string BoxColor
+    4. List\<KanbanCardModel> Cards
+    5. Constructor that will auto increment the Id
+4.  Create KanbanService class
+    1. Contains List\<KanbanColumnModel>
+5. We add our service in Program.cs
+
+<details>
+
+<summary> Checkpoint 1</summary>
+KanbanCardModel.cs
+
+```
+public class KanbanCardModel
+{
+	public string? Title { get; set; }
+	public string? Description { get; set; }
+	public DateOnly? Deadline { get; set; }
+}
+```
+KanbanColumnModel.cs
+```
+public class KanbanColumnModel
+{
+	private static int IdCount = 1;
+	public int Id { get; set; }
+	public string? Title { get; set; }
+	public string? BoxColor { get; set; }
+	public List<KanbanCardModel> Cards { get; set; } = new List<KanbanCardModel>();
+
+	public KanbanColumnModel(string title, string color) 
+	{
+		this.Id = IdCount++;
+		Title = title;
+		BoxColor = color;
+	}
+}
+```
+KanbanService.cs
+```
+public class KanbanService
+{
+    public List<KanbanColumnModel> kanbanColumns = new List<KanbanColumnModel>();
+}
+```
+Program.cs
+```
+// Add services to the container.
+builder.Services.AddRazorComponents()
+    .AddInteractiveServerComponents();
+builder.Services.AddSingleton<KanbanService>();
+```
+
+</details>
+
+## Part 2 - Stylish Beginnings
+
+I prepared a css stylesheet to make our application not look like it's from the 90's.
+
+<details>
+
+<summary> CSS Stylesheet</summary>
+
+```
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* NAVBAR */
+nav.navbar {
+    background-color: #333;
+    padding: 10px 40px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+nav.navbar a {
+    padding: 12px 20px;
+    border-radius: 5px;
+    background-color: #007bff;
+    transition: background-color 0.3s;
+    color: white;
+    text-decoration: none;
+    margin-right: 20px;
+    font-size: 20px;
+}
+
+nav.navbar a:hover {
+    background-color: #0056b3;
+    text-decoration: underline;
+}
+
+nav.navbar a:active {
+    transform: translateY(1px);
+}
+
+/* KANBAN */
+.kanban-board {
+    display: flex;
+}
+
+.kanban-column {
+    flex-shrink: 0;
+    width: 300px;
+    min-width: 200px;
+    padding: 10px;
+    background-color: #f4f4f4;
+    border-radius: 5px;
+    margin: 0 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s, box-shadow 0.3s;
+    text-align: center;
+}
+
+.kanban-card {
+    background-color: #fff;
+    padding: 10px;
+    margin: 10px 10px 10px 10px;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s;
+}
+
+.kanban-column:hover {
+    background-color: #f0f0f0;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.kanban-card:hover {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* FORM */
+.form-container {
+    width: 400px;
+    margin-left: 40px;
+    margin-bottom: 15px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.form-container h1{
+    margin-bottom: 15px;
+}
+
+.form-container label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 20px;
+}
+
+.form-container input[type="text"],
+.form-container input[type="date"],
+.form-container input[type="color"] {
+    width: 100%;
+    margin-bottom: 15px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+.form-container input[type="color"] {
+    padding: 3px;
+    border-radius: 5px;
+    height: 40px;
+    appearance: none;
+}
+
+.form-container button,
+.form-container button[type="submit"] {
+    width: 100%;
+    padding: 10px;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.form-container button:hover,
+.form-container button[type="submit"]:hover {
+    background-color: #45a049;
+}
+
+/* BUTTON */
+.circular-button {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: white;
+    color: black;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s, transform 0.3s;
+}
+
+.circular-button:hover {
+    background-color: #c2c2c2;
+}
+
+.circular-button:active {
+    transform: scale(0.95);
+}
+
+.form-container button.button-red {
+    width: 100%;
+    padding: 10px;
+    background-color: #e50000;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.form-container button.button-red:hover {
+    background-color: #b32121;
+}
+
+```
+
+</details>
+
+We'll add it all to app.css in the wwwroot folder
+
+in App.razor we have the header of our html pages, here you can for example import Bootstrap if you want
+### TASK - Create a Blazor component that will be used as a form to create KanbanColumnModels
+
+1. use using directive to use classes from namespace (AppName).Data
+1. inject service
+2. give it a route using page directive
+3. make it interactive
+4. make a form that combines the input data into the promoted
+5. use these variables in the KanbanColumnModel constructor
+6. make a method that adds a new KanbanColumnModel to the database using our service
+7. we call the method on pressing the button
+
+if the form is in \<div> with the kanban-column class, it will be relatively nicer
+
+### Navbar
+
+in MainLayout.razor we make a navbar that will route to Home and to that form
+
+
+```
+@inherits LayoutComponentBase
+
+<nav class="navbar">
+    <a href="/">Home</a>
+    <a href="createform">Form</a>
+</nav>
+
+<main>
+    @Body
+</main>
+
+<div id="blazor-error-ui">
+    An unhandled error has occurred.
+    <a href="" class="reload">Reload</a>
+    <a class="dismiss">🗙</a>
+</div>
+```
+
+v Home.razor vytvořte list KanbanColumnModelů a přiřadte mu list z KanbanServisu uvnitr teto metody
+```
+protected override void OnInitialized()
+{
+	yourList = kanbanSvc.kanbanColumns;
+}
+```
+
+make a foreach loop that renders the data from the KanbanColumn
+that loop is wrapped in a \<div> with the kanban-board class
+
+<details>
+<summary>2. checkpoint</summary>
+
+CreateForm.razor
+```
+@page "/createform"
+@rendermode InteractiveServer
+@using Data
+@inject KanbanService KanbanSvc
+
+<div class="form-container">
+	<form>
+		<h1>Create Column</h1>
+		<label for="Title">Title</label>
+		<input id="Title" type="text" @bind="newTitle" />
+		<label for="Colour">Colour</label>
+		<input id="Colour"type="color" @bind="color" />
+		<button @onclick="AddColumn">Add todo</button>
+	</form>
+</div>
+
+
+@code {
+	public string newTitle;
+	public string color = "#f4f4f4";
+
+	public void AddColumn()
+	{
+		KanbanSvc.kanbanColumns.Add(new KanbanColumnModel(newTitle, color));
+		newTitle = "";
+		color = "#f4f4f4";
+	}
+}
+```
+Home.razor
+```
+@page "/"
+@using Data
+@inject KanbanService KanbanSvc
+@rendermode InteractiveServer
+
+<div class="kanban-board">
+	@foreach (KanbanColumnModel column in Columns)
+	{
+		column.Title
+		column.BoxColor
+	}
+</div>
+
+@code {
+
+	public List<KanbanColumnModel>? Columns { get; set; }
+    protected override void OnInitialized()
+    {
+    	Columns = kanbanSvc.kanbanColumns;
+    }
+}
+```
+
+</details>
+
+## 3. Part - Components and Components
+
+for now it only renders text for us, we'll make a component to render a colored cube with a name
+
+1. Create a KanbanColumn.razor component
+2. obtains the KanbanColumnModel object using the Parameter attribute
+3. write \<div> with class kanban-column
+4. put a name in it and color the div using the object from the parameter
+
+Modify Home.razor to create our new component in a foreach loop and insert KanbanColumnModel objects into the parameter
+
+
+### Do the same but for Card
+
+
+1. Create the KanbanCard.razor component
+2. obtains the KanbanCardModel object using the Parameter attribute
+3. write a \<div> with the kanban-card class
+4. put object properties in it
+
+Edit KanbanColumn.razor to create our new component in the foreach loop and insert KanbanCardModel objects into the parameter
+
+<details>
+<summary>3. Checkpoint</summary>
+
+Home.razor
+```
+@page "/"
+@using Data
+@inject KanbanService KanbanSvc
+@rendermode InteractiveServer
+
+<div class="kanban-board">
+	@foreach (KanbanColumnModel column in Columns)
+	{
+        <KanbanColumn Column="column"></KanbanColumn>
+	}
+</div>
+
+@code {
+
+	public List<KanbanColumnModel>? Columns { get; set; }
+    protected override void OnInitialized()
+    {
+    	Columns = kanbanSvc.kanbanColumns;
+    }
+}
+```
+KanbanColumn.razor
+```
+@using Data
+@rendermode InteractiveServer
+
+<div class="kanban-column" style="background-color: @Column.BoxColor">
+	<h2>@Column.Title</h2>
+		@foreach (var card in Column.Cards)
+		{
+			<KanbanCard Card="card/>
+		}
+</div>
+
+@code {
+	[Parameter]
+	public KanbanColumnModel? Column { get; set; }
+}
+```
+KanbanCard.razor
+```
+@using Data
+@rendermode InteractiveServer
+
+<div class="kanban-card">
+	<b>
+		@Card.Title
+	</b>
+	<p>
+		@Card.Description
+	</p>
+	<i>
+		@Card.Deadline
+	</i>
+</div>
+
+@code {
+	[Parameter]
+	public KanbanCardModel? Card { get; set; }
+}
+```
+</details>
+
+## Part 4 - Final Boss (phase 1/30)
+
+- Create a button in KanbanColumn.razor that will redirect you to a new page EditForm.razor
+- here create forms to create KanbanCardModels, edit KanbanColumnModel and delete it
+- so that the page knows which KanbanColumnModel to put it in, we use the route parameter, which takes the Id
+
+To redirect the button we use the NavigationManager service and its NavigateTo($"/editform/{Column.Id}") function - this sends us to /editform and puts Column.Id as a parameter
+
+<details>
+<summary>4. Checkpoint</summary>
+
+EditForm.razor
+```
+@page "/editform/{id:int}"
+@using Data
+@inject KanbanService KanbanSvc
+@inject NavigationManager NavMan
+@rendermode InteractiveServer
+
+@if (Column != null)
+{
+<div class="form-container">
+	<h1>Add Card</h1>
+	<form>
+		<label for="Title">Title</label>
+		<input id="Title" type="text" @bind="newTitle"/>
+		<label for="Description">Description</label>
+		<input id="Description" type="text" @bind="newDescription"/>
+		<input type="date" @bind="newDeadline"/>
+		<button @onclick="AddItem">Add Item</button>
+	</form>
+</div>
+
+<div class="form-container">
+	<h1>Edit Column</h1>
+	<form>
+		<label for"Title">Title</label>
+		<input id="Title" type="text" @bind="Column.Title" />
+		<label for"Color">Colour</label>
+		<input id="Color" type="color" @bind="Column.BoxColor"/>
+	</form>
+</div>
+<div class="form-container">
+	<h1>Delete Column</h1>
+	<button class="button-red" @onclick="DeleteColumn">DELETE</button>
+</div>
+}
+else{
+	<p>nothing here</p>
+}
+
+
+@code {
+	[Parameter]
+	public int Id { get; set; }
+	public KanbanColumnModel? Column { get; set; }
+
+	private string? newTitle;
+	private string? newDescription;
+	private DateOnly? newDeadline;
+
+	protected override void OnInitialized()
+	{
+		Column = KanbanSvc.kanbanColumns.Find(x => x.Id == Id);
+	}
+	private void AddItem()
+	{
+		Column.Cards.Add(new KanbanCardModel() {Title = newTitle, Description = newDescription, Deadline = newDeadline });
+		newTitle = "";
+		newDescription = "";
+	}
+	private void DeleteColumn()
+	{
+		KanbanSvc.kanbanColumns.Remove(Column);
+		NavMan.NavigateTo($"/");
+	}
+}
+
+```
+
+</details>
+
+## Part 5 - Sidequests
+
+Streamrendering - renders the html page before getting all the necessary data (from the database, API), after getting it rerendered
+EditForm - built-in component for form creation with validation
